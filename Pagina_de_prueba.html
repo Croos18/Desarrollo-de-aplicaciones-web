@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Página HTML5</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header>
+        <h1>Bienvenido a Mi Página Web</h1>
+        <nav>
+            <ul>
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#contenido">Contenido</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="inicio">
+            <h2>Acerca de esta Página</h2>
+            <p>Esta es una <strong>página de ejemplo</strong> creada como parte de un proyecto de <em>HTML5 y CSS</em>.</p>
+        </section>
+
+        <section id="contenido">
+            <article>
+                <h3>Contenido Multimedia</h3>
+                <p>A continuación puedes ver una imagen y un video insertados desde el repositorio local.</p>
+                <img src="assets/img/imagen1.jpg" alt="Imagen de ejemplo" width="300">
+                <br><br>
+                <video controls width="320">
+                    <source src="assets/video/video1.mp4" type="video/mp4">
+                    Tu navegador no soporta la etiqueta de video.
+                </video>
+            </article>
+
+            <article>
+                <h3>Listas</h3>
+                <p>Ejemplo de listas ordenadas y desordenadas:</p>
+                <ol>
+                    <li>HTML</li>
+                    <li>CSS</li>
+                    <li>JavaScript</li>
+                </ol>
+                <ul>
+                    <li>Manzana</li>
+                    <li>Banana</li>
+                    <li>Naranja</li>
+                </ul>
+            </article>
+
+            <article>
+                <h3>Tabla de Ejemplo</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Edad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Ana</td>
+                            <td>25</td>
+                        </tr>
+                        <tr>
+                            <td>Juan</td>
+                            <td>30</td>
+                        </tr>
+                        <tr>
+                            <td>María</td>
+                            <td>28</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </article>
+        </section>
+
+        <section id="contacto">
+            <h3>Formulario de Contacto</h3>
+            <form>
+                <label for="nombre">Nombre:</label><br>
+                <input type="text" id="nombre" name="nombre"><br><br>
+                <label for="correo">Correo:</label><br>
+                <input type="email" id="correo" name="correo"><br><br>
+                <button type="submit">Enviar</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>Visita <a href="https://www.example.com" target="_blank">este enlace externo</a> para más información.</p>
+    </footer>
+
+</body>
+</html>
