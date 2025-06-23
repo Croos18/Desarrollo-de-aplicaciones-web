@@ -1,0 +1,33 @@
+/* Personalización de botón primario */
+.btn-primary {
+  background-color: #ff5733;
+  border: none;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #ff784e;
+  transform: scale(1.05);
+}
+
+/* Tarjetas con borde redondeado y sombra */
+.card {
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+/* Media query personalizada */
+@media (max-width: 768px) {
+  body {
+    background-color: #f0f8ff;
+  }
+
+  .navbar {
+    background-color: #343a40 !important;
+  }
+}
