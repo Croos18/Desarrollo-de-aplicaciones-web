@@ -1,0 +1,15 @@
+body {
+  background-color: #f8f9fa;
+}
+
+footer {
+  position: relative;
+  bottom: 0;
+  width: 100%;
+}
+
+/* Personalización del botón de alerta */
+.btn-warning {
+  font-weight: bold;
+  border-radius: 10px;
+}
