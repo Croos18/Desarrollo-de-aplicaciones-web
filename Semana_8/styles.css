@@ -13,3 +13,9 @@ footer {
   font-weight: bold;
   border-radius: 10px;
 }
+
+.carousel-img {
+  height: 350px;
+  object-fit: cover;
+  object-position: center;
+}
