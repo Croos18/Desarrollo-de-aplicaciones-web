@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>{{ titulo or "Inicio" }}</h1>
+
+  {% if nombre %}
+    <p>Bienvenido, <strong>{{ nombre }}</strong> 🎉</p>
+  {% else %}
+    <p>¡Hola! Flask + Jinja2 está funcionando 🚀</p>
+    <ul>
+      <li>Reutilizamos layout con <code>base.html</code></li>
+      <li>Pasamos variables desde la vista (<code>titulo</code>, <code>nombre</code>)</li>
+      <li>Usamos <code>url_for()</code> para rutas y estáticos</li>
+    </ul>
+  {% endif %}
+{% endblock %}
