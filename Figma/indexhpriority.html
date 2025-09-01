@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>To-Do Hi-Fi</title>
+  <!-- Fuente moderna; si no carga, usa system-ui -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      /* Paleta */
+      --primary:#2563EB;     /* azul */
+      --primary-600:#1E4FD7;
+      --accent:#10B981;      /* verde */
+      --bg:#0B1020;          /* fondo app */
+      --card:#FFFFFF;
+      --muted:#F3F4F6;
+      --ink:#0F172A;         /* texto oscuro */
+      --ink-2:#475569;       /* texto secundario */
+      --danger:#EF4444;
+      --shadow: 0 12px 30px rgba(0,0,0,.12);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0}
+    body{
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+      color: var(--ink);
+      background: radial-gradient(1200px 600px at 50% -10%, #1b2446 0%, #0d142e 45%, #090f24 100%);
+      min-height:100vh;
+      display:flex; align-items:center; justify-content:center;
+      padding:16px;
+    }
+    /* phone container */
+    .phone{
+      width: 420px; max-width: 100%;
+      background: linear-gradient(180deg, #111935 0%, #0b1020 100%);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius: 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.04);
+      overflow: hidden;
+    }
+    /* status bar fake */
+    .status{height:18px; background: transparent}
+    /* header */
+    header{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px;
+    }
+    .title{
+      display:flex; align-items:center; gap:10px; color:#fff;
+      font-weight:700; letter-spacing:.2px;
+    }
+    .title svg{width:24px;height:24px}
+    .avatar{
+      width:32px;height:32px;border-radius:50%;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="%232563EB"/><stop offset="1" stop-color="%2310B981"/></linearGradient></defs><rect width="64" height="64" rx="14" fill="url(%23g)"/><circle cx="32" cy="26" r="10" fill="white"/><rect x="16" y="40" width="32" height="12" rx="6" fill="white"/></svg>') center/cover no-repeat;
+      box-shadow: 0 8px 20px rgba(16,185,129,.35);
+      border:1px solid rgba(255,255,255,.2)
+    }
+
+    /* tabbar */
+    .tabs{
+      padding:0 18px 8px 18px;
+      display:flex; gap:8px; flex-wrap:wrap;
+    }
+    .chip{
+      background:rgba(255,255,255,.08); color:#e5e7eb; padding:8px 12px; border-radius:999px;
+      font-size:12px; border:1px solid rgba(255,255,255,.1); cursor:pointer; user-select:none;
+    }
+    .chip.active{background:#fff; color:var(--ink); border-color:#fff; font-weight:600}
+
+    /* banner */
+    .banner{
+      margin: 6px 18px 12px 18px; border-radius: 16px;
+      background: linear-gradient(135deg, rgba(37,99,235,.95), rgba(16,185,129,.95));
+      color:#fff; padding:16px;
+      box-shadow: var(--shadow);
+      display:flex; gap:12px; align-items:center;
+    }
+    .banner img{
+      width:56px;height:56px;border-radius:12px; object-fit:cover;
+      background:#d1d5db; border:2px solid rgba(255,255,255,.5)
+    }
+    .banner h3{margin:0 0 4px 0; font-size:16px}
+    .banner p{margin:0; font-size:12px; opacity:.9}
+
+    /* screens */
+    .screen{display:none; padding:10px 18px 90px}
+    .screen.active{display:block}
+
+    /* cards */
+    .card{
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      border:1px solid #e5e7eb;
+    }
+    .card + .card{margin-top:12px}
+
+    /* task item */
+    .task{
+      display:flex; gap:12px; align-items:center; padding:14px;
+    }
+    .task + .task{border-top:1px solid #eef2f7}
+    .check{
+      width:22px;height:22px;border-radius:6px; border:2px solid #cbd5e1;
+      display:grid; place-items:center; cursor:pointer; flex: 0 0 auto;
+    }
+    .check svg{width:16px;height:16px; display:none}
+    .task.done .check{background:var(--accent); border-color:var(--accent)}
+    .task.done .check svg{display:block; fill:#fff}
+    .taskTitle{font-weight:600}
+    .taskNote{font-size:12px; color:var(--ink-2)}
+    .right{
+      margin-left:auto; display:flex; gap:8px; align-items:center;
+    }
+    .pill{
+      font-size:11px; padding:6px 8px; border-radius:10px; background: var(--muted); color:#374151;
+      border:1px solid #e5e7eb;
+    }
+    .del{
+      border:none; background:transparent; color: var(--danger); font-weight:700; cursor:pointer
+    }
+
+    /* FAB */
+    .fab{
+      position: fixed; bottom: 24px; right: calc(50% - 420px/2 + 18px);
+      width:60px;height:60px;border-radius:50%;
+      background: #fff;
+      border: none;
+      box-shadow: 0 14px 34px rgba(37,99,235,.35);
+      cursor:pointer;
+      display:grid; place-items:center;
+    }
+    .fab svg{width:28px; height:28px; fill: var(--primary)}
+    .fab:active{transform: translateY(1px)}
+
+    /* bottom nav */
+    .nav{
+      position: sticky; bottom:0; background: rgba(255,255,255,.9); backdrop-filter: blur(10px);
+      display:flex; justify-content:space-around; padding:10px 4px;
+      border-top:1px solid #e5e7eb;
+    }
+    .nav button{
+      background:transparent; border:none; display:grid; place-items:center; gap:4px; color:#334155; cursor:pointer;
+    }
+    .nav svg{width:22px;height:22px}
+
+    /* form */
+    .form{padding:16px}
+    .field{display:grid; gap:8px; margin-bottom:12px}
+    .label{font-size:13px; color:#334155; font-weight:600}
+    input[type="text"], textarea{
+      width:100%; padding:12px 14px; border-radius:12px;
+      border:1px solid #dbe0e8; background:#fff; font-size:15px;
+    }
+    .actions{display:flex; gap:10px}
+    .btn{
+      border:none; padding:12px 14px; border-radius:12px; font-weight:700; cursor:pointer;
+    }
+    .btn.primary{background: var(--primary); color:#fff}
+    .btn.primary:hover{background: var(--primary-600)}
+    .btn.ghost{background:#eef2f7; color:#0f172a}
+
+    /* toast */
+    .toast{
+      position: fixed; left:50%; transform: translateX(-50%);
+      bottom: 92px; background:#101827; color:#fff; padding:10px 14px;
+      border-radius:999px; box-shadow: var(--shadow); display:none;
+    }
+    .toast.show{display:block}
+  </style>
+</head>
+<body>
+  <div class="phone" role="main" aria-label="Aplicación To-Do Hi-Fi">
+    <div class="status"></div>
+    <header>
+      <div class="title">
+        <!-- icono app -->
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h9a1 1 0 0 0 0-2H4a1 1 0 1 0 0 2Zm0 6h9a1 1 0 0 0 0-2H4a1 1 0 1 0 0 2Zm0 6h9a1 1 0 0 0 0-2H4a1 1 0 1 0 0 2Zm14.71-9.29-5.66 5.66-2.12-2.12a1 1 0 1 0-1.41 1.41l2.83 2.83a1 1 0 0 0 1.41 0l6.36-6.36a1 1 0 0 0-1.41-1.41Z" fill="#fff"/></svg>
+        <span>Mis Tareas</span>
+      </div>
+      <div class="avatar" title="Perfil"></div>
+    </header>
+
+    <!-- chips -->
+    <div class="tabs">
+      <div class="chip active">Hoy</div>
+      <div class="chip">Esta semana</div>
+      <div class="chip">Completadas</div>
+    </div>
+
+    <!-- banner con imagen -->
+    <div class="banner">
+      <img alt="Imagen motivación" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='112' height='112'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop stop-color='%23dbeafe'/><stop offset='1' stop-color='%23a7f3d0'/></linearGradient></defs><rect width='112' height='112' rx='16' fill='url(%23g)'/></svg>"/>
+      <div>
+        <h3>Plan del día</h3>
+        <p>3 tareas pendientes · 1 próxima reunión</p>
+      </div>
+    </div>
+
+    <!-- Screen 1: Lista -->
+    <section id="screen-list" class="screen active" aria-label="Lista de tareas">
+      <div class="card" id="task-list">
+        <!-- tasks render -->
+      </div>
+    </section>
+
+    <!-- Screen 2: Nueva Tarea -->
+    <section id="screen-new" class="screen" aria-label="Crear nueva tarea">
+      <div class="card form">
+        <div class="field">
+          <label class="label" for="titulo">Título</label>
+          <input type="text" id="titulo" placeholder="Ej. Enviar informe de ventas">
+        </div>
+        <div class="field">
+          <label class="label" for="nota">Nota</label>
+          <textarea id="nota" rows="3" placeholder="Detalles, links, etc."></textarea>
+        </div>
+        <div class="field">
+          <label class="label" for="tag">Etiqueta</label>
+          <input type="text" id="tag" placeholder="Trabajo, Personal, Urgente…">
+        </div>
+        <div class="actions">
+          <button class="btn ghost" id="btn-cancel">Cancelar</button>
+          <button class="btn primary" id="btn-save">Guardar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 3: Confirmación -->
+    <section id="screen-ok" class="screen" aria-label="Confirmación">
+      <div class="card" style="padding:18px; text-align:center">
+        <svg viewBox="0 0 24 24" width="64" height="64" fill="none">
+          <circle cx="12" cy="12" r="10" fill="var(--accent)"/>
+          <path d="M8 12.5l2.5 2.5L16 9.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h3 style="margin:8px 0 4px">¡Tarea agregada!</h3>
+        <p style="margin:0;color:var(--ink-2)">Tu lista fue actualizada correctamente.</p>
+        <div class="actions" style="justify-content:center; margin-top:12px">
+          <button class="btn ghost" id="btn-new-another">Agregar otra</button>
+          <button class="btn primary" id="btn-go-list">Volver a la lista</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom nav -->
+    <nav class="nav" aria-label="Navegación inferior">
+      <button data-go="screen-list" title="Inicio">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 2 12h3v8h6v-5h2v5h6v-8h3z"/></svg>
+        <small>Inicio</small>
+      </button>
+      <button data-go="screen-new" title="Nueva">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 11V4a1 1 0 1 1 2 0v7h7a1 1 0 1 1 0 2h-7v7a1 1 0 1 1-2 0v-7H4a1 1 0 1 1 0-2h7z"/></svg>
+        <small>Nuevo</small>
+      </button>
+      <button title="Perfil">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4.33 0-8 2.17-8 5v1h16v-1c0-2.83-3.67-5-8-5z"/></svg>
+        <small>Perfil</small>
+      </button>
+    </nav>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" id="btn-fab" title="Agregar tarea">
+    <svg viewBox="0 0 24 24"><path d="M11 11V4a1 1 0 1 1 2 0v7h7a1 1 0 1 1 0 2h-7v7a1 1 0 1 1-2 0v-7H4a1 1 0 1 1 0-2h7z"/></svg>
+  </button>
+
+  <!-- toast -->
+  <div class="toast" id="toast">Guardado ✅</div>
+
+  <script>
+    // Estado
+    let tasks = [
+      {title:"Revisar correo", note:"Responder a Juan", tag:"Trabajo", done:false},
+      {title:"Comprar frutas", note:"Manzana, banano, uva", tag:"Personal", done:false},
+      {title:"Revisar informe", note:"Q2 Ventas", tag:"Urgente", done:true},
+    ];
+
+    // Elementos
+    const screens = {
+      list: document.getElementById('screen-list'),
+      add: document.getElementById('screen-new'),
+      ok: document.getElementById('screen-ok'),
+    };
+    const listContainer = document.getElementById('task-list');
+    const toast = document.getElementById('toast');
+
+    const titulo = document.getElementById('titulo');
+    const nota   = document.getElementById('nota');
+    const tag    = document.getElementById('tag');
+
+    const btnSave = document.getElementById('btn-save');
+    const btnCancel = document.getElementById('btn-cancel');
+    const btnFab = document.getElementById('btn-fab');
+    const btnNewAnother = document.getElementById('btn-new-another');
+    const btnGoList = document.getElementById('btn-go-list');
+
+    // Helpers
+    const go = name => {
+      Object.values(screens).forEach(s => s.classList.remove('active'));
+      if(name==='list') screens.list.classList.add('active');
+      if(name==='add') screens.add.classList.add('active');
+      if(name==='ok') screens.ok.classList.add('active');
+      if(name==='add') setTimeout(()=>titulo.focus(),50);
+    }
+
+    function escapeHtml(s){
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function render(){
+      listContainer.innerHTML = tasks.map((t,i)=>`
+        <div class="task ${t.done ? 'done':''}" data-index="${i}">
+          <div class="check" title="Completar">
+            <svg viewBox="0 0 24 24"><path d="M20.29 7.29a1 1 0 0 0-1.41 0l-7.88 7.88-3.3-3.29a1 1 0 0 0-1.41 1.41l4 4a1 1 0 0 0 1.41 0l8.59-8.59a1 1 0 0 0 0-1.41Z"/></svg>
+          </div>
+          <div style="display:grid">
+            <span class="taskTitle">${escapeHtml(t.title)}</span>
+            <span class="taskNote">${escapeHtml(t.note || '')}</span>
+          </div>
+          <div class="right">
+            ${t.tag ? `<span class="pill">${escapeHtml(t.tag)}</span>`:''}
+            <button class="del" title="Eliminar" aria-label="Eliminar">×</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function showToast(msg="Guardado ✅"){
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(()=>toast.classList.remove('show'), 1500);
+    }
+
+    // Eventos globales
+    listContainer.addEventListener('click', (e)=>{
+      const item = e.target.closest('.task');
+      if(!item) return;
+      const idx = +item.dataset.index;
+
+      if(e.target.closest('.check')){
+        tasks[idx].done = !tasks[idx].done;
+        render();
+        return;
+      }
+      if(e.target.closest('.del')){
+        tasks.splice(idx,1);
+        render();
+        showToast('Eliminado 🗑️');
+        return;
+      }
+    });
+
+    // navegación inferior
+    document.querySelectorAll('.nav [data-go]').forEach(btn=>{
+      btn.addEventListener('click', ()=>go(btn.dataset.go.replace('screen-','')));
+    });
+
+    btnFab.addEventListener('click', ()=> go('add'));
+
+    btnCancel.addEventListener('click', ()=>{
+      titulo.value=''; nota.value=''; tag.value='';
+      go('list');
+    });
+
+    btnSave.addEventListener('click', ()=>{
+      const title = (titulo.value||'').trim();
+      if(!title){ showToast('Escribe un título ✍️'); return; }
+      tasks.push({title, note: (nota.value||'').trim(), tag: (tag.value||'').trim(), done:false});
+      titulo.value=''; nota.value=''; tag.value='';
+      render();
+      go('ok');
+      showToast();
+    });
+
+    document.getElementById('btn-new-another').addEventListener('click', ()=> go('add'));
+    document.getElementById('btn-go-list').addEventListener('click', ()=> go('list'));
+
+    // Inicial
+    render();
+  </script>
+</body>
+</html>

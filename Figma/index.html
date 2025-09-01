@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Prototipo Baja Fidelidad - ToDo</title>
+  <style>
+    /* --- Estilo Lo-Fi (blanco/negro, sin adornos) --- */
+    :root {
+      --border: #222;
+      --bg: #fff;
+      --ink: #111;
+      --muted: #e9e9e9;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: system-ui, Arial, sans-serif; }
+    .phone {
+      max-width: 420px;
+      margin: 24px auto;
+      border: 2px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 2px 0 0 #000;
+    }
+    header {
+      border-bottom: 2px solid var(--border);
+      padding: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    header .back {
+      border: 2px solid var(--border);
+      padding: 6px 10px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+    }
+    .screen {
+      display: none;
+      min-height: 70vh;
+      padding: 16px;
+    }
+    .screen.active { display: block; }
+    .card {
+      border: 2px solid var(--border);
+      padding: 12px;
+      margin-bottom: 10px;
+      background: #fff;
+    }
+    .list { display: grid; gap: 8px; margin-bottom: 80px; }
+    .task {
+      border: 2px solid var(--border);
+      padding: 12px;
+      background: #f8f8f8;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .checkbox {
+      width: 18px; height: 18px;
+      border: 2px solid var(--border);
+      background: #fff;
+      display: inline-block;
+    }
+    .fab {
+      position: sticky;
+      bottom: 16px;
+      margin-left: auto;
+      display: block;
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: #fff;
+      font-size: 28px;
+      line-height: 52px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 2px 0 0 #000;
+    }
+    .input {
+      display: grid;
+      gap: 8px;
+    }
+    label { font-size: 14px; }
+    input[type="text"], textarea {
+      width: 100%;
+      border: 2px solid var(--border);
+      padding: 10px;
+      background: #fff;
+      font-size: 16px;
+    }
+    .row { display: flex; gap: 10px; margin-top: 12px; }
+    .btn {
+      border: 2px solid var(--border);
+      background: #fff;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 2px 0 0 #000;
+    }
+    .btn:active { transform: translateY(1px); box-shadow: 0 1px 0 0 #000; }
+    .hint {
+      border: 2px dashed var(--border);
+      padding: 10px;
+      background: #fff;
+      color: #333;
+      font-size: 13px;
+    }
+    footer {
+      border-top: 2px solid var(--border);
+      padding: 12px 16px;
+      font-size: 12px;
+      color: #555;
+      background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone" role="main">
+    <!-- Pantalla 1: Lista -->
+    <header>
+      <span style="font-size:18px;">📝</span>
+      <div>Mis Tareas</div>
+    </header>
+    <section id="screen-list" class="screen active" aria-label="Lista de tareas">
+      <div class="card hint">
+        Flujo: Abrir app → Ver lista → Agregar tarea (+) → Guardar → Ver lista actualizada.
+      </div>
+
+      <div id="task-list" class="list" aria-live="polite">
+        <!-- Tareas de ejemplo inicial -->
+        <div class="task">
+          <span class="checkbox" aria-hidden="true"></span>
+          <span>Revisar correo</span>
+        </div>
+        <div class="task">
+          <span class="checkbox" aria-hidden="true"></span>
+          <span>Llamar a proveedor</span>
+        </div>
+      </div>
+
+      <button id="btn-new" class="fab" aria-label="Agregar nueva tarea" title="Agregar tarea">+</button>
+    </section>
+
+    <!-- Pantalla 2: Nueva Tarea -->
+    <header id="header-new" style="display:none;">
+      <button class="back" id="back-to-list" aria-label="Volver a la lista">←</button>
+      <div>Nueva Tarea</div>
+    </header>
+    <section id="screen-new" class="screen" aria-label="Crear nueva tarea">
+      <div class="card input">
+        <label for="titulo">Título</label>
+        <input type="text" id="titulo" placeholder="Escribir tarea…" />
+        <label for="nota">Nota (opcional)</label>
+        <textarea id="nota" rows="3" placeholder="Detalles breves…"></textarea>
+        <div class="row">
+          <button id="btn-save" class="btn">Guardar</button>
+          <button id="btn-cancel" class="btn">Cancelar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pantalla 3: Lista Actualizada (es la misma lista, pero mostramos mensaje) -->
+    <header id="header-updated" style="display:none;">
+      <div>Mis Tareas</div>
+    </header>
+    <section id="screen-updated" class="screen" aria-label="Lista actualizada">
+      <div class="card" id="updated-msg">✅ Tarea agregada.</div>
+      <div id="task-list-updated" class="list" aria-live="polite"></div>
+      <button id="btn-new-again" class="fab" aria-label="Agregar otra tarea" title="Agregar otra tarea">+</button>
+    </section>
+
+    <footer>
+      Prototipo Lo-Fi (sin colores, sin imágenes, con rectángulos y texto simple). Navegación simulada.
+    </footer>
+  </div>
+
+  <script>
+    // Estado simple en memoria para simular el flujo
+    const screens = {
+      list: document.getElementById('screen-list'),
+      new: document.getElementById('screen-new'),
+      updated: document.getElementById('screen-updated'),
+    };
+    const headers = {
+      new: document.getElementById('header-new'),
+      updated: document.getElementById('header-updated'),
+    };
+
+    const btnNew = document.getElementById('btn-new');
+    const btnNewAgain = document.getElementById('btn-new-again');
+    const btnSave = document.getElementById('btn-save');
+    const btnCancel = document.getElementById('btn-cancel');
+    const backToList = document.getElementById('back-to-list');
+
+    const titulo = document.getElementById('titulo');
+    const nota = document.getElementById('nota');
+
+    const taskList = document.getElementById('task-list');
+    const taskListUpdated = document.getElementById('task-list-updated');
+    const updatedMsg = document.getElementById('updated-msg');
+
+    let tasks = [
+      { title: 'Revisar correo' },
+      { title: 'Llamar a proveedor' },
+    ];
+
+    function renderList(container, items) {
+      container.innerHTML = '';
+      items.forEach(t => {
+        const el = document.createElement('div');
+        el.className = 'task';
+        el.innerHTML = `
+          <span class="checkbox" aria-hidden="true"></span>
+          <span>${escapeHtml(t.title)}</span>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    function showScreen(name) {
+      // Ocultar todo
+      Object.values(screens).forEach(s => s.classList.remove('active'));
+      headers.new.style.display = 'none';
+      headers.updated.style.display = 'none';
+
+      // Mostrar seleccionado
+      if (name === 'list') {
+        screens.list.classList.add('active');
+      } else if (name === 'new') {
+        screens.new.classList.add('active');
+        headers.new.style.display = '';
+        setTimeout(() => titulo.focus(), 50);
+      } else if (name === 'updated') {
+        screens.updated.classList.add('active');
+        headers.updated.style.display = '';
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function sync() {
+      renderList(taskList, tasks);
+      renderList(taskListUpdated, tasks);
+    }
+
+    // Eventos
+    btnNew.addEventListener('click', () => {
+      showScreen('new');
+    });
+
+    btnNewAgain.addEventListener('click', () => {
+      titulo.value = '';
+      nota.value = '';
+      showScreen('new');
+    });
+
+    backToList.addEventListener('click', () => {
+      titulo.value = '';
+      nota.value = '';
+      showScreen('list');
+    });
+
+    btnCancel.addEventListener('click', () => {
+      titulo.value = '';
+      nota.value = '';
+      showScreen('list');
+    });
+
+    btnSave.addEventListener('click', () => {
+      const title = (titulo.value || '').trim();
+      if (!title) {
+        updatedMsg.textContent = '⚠️ Escribe un título antes de guardar.';
+        showScreen('updated');
+        return;
+      }
+      tasks.push({ title });
+      sync();
+      updatedMsg.textContent = '✅ Tarea agregada.';
+      titulo.value = '';
+      nota.value = '';
+      showScreen('updated');
+    });
+
+    // Inicial
+    sync();
+  </script>
+</body>
+</html>
