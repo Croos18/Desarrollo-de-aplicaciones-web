@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flask (F5)",
+      "type": "python",
+      "request": "launch",
+      "module": "flask",
+      "args": ["--app", "app", "--debug", "run"],
+      "jinja": true,
+      "env": { "FLASK_ENV": "development" }
+    }
+  ]
+}
