@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}{{ title or 'App' }}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="row container" style="gap:24px">
+      <div class="brand">Mi App Flask</div>
+
+      <nav style="display:flex; gap:14px; align-items:center">
+        {% if session.get('user_id') %}
+          <a href="{{ url_for('home') }}">Inicio</a>
+          <a href="{{ url_for('listar_productos') }}">Productos</a>
+          <a href="{{ url_for('listar_categorias') }}">Categorías</a>
+        {% endif %}
+      </nav>
+
+      <div class="nav-spacer"></div>
+
+      {% if session.get('user_id') %}
+        <span style="opacity:.7; font-size:14px; margin-right:6px">
+          {{ session.get('username') }}
+        </span>
+        <a class="btn" href="{{ url_for('auth.logout') }}">Salir</a>
+      {% else %}
+        <a class="btn" href="{{ url_for('auth.login') }}">Entrar</a>
+        <a class="btn" href="{{ url_for('auth.register') }}">Registrarse</a>
+      {% endif %}
+    </div>
+  </header>

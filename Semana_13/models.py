@@ -1,25 +1,91 @@
-from dataclasses import dataclass
-from typing import Optional
+# models.py (REEMPLAZO COMPLETO)
+from flask_login import UserMixin
+from conexion import get_connection
 
-@dataclass
-class User:
-    id: int
-    nombre: str
-    email: str
-    password_hash: str
+# ---------- Utilidades de mapeo ----------
+def _pick(cols: set, candidates: list[str]):
+    for c in candidates:
+        if c in cols:
+            return c
+    return None
 
-    # Métodos requeridos por Flask-Login
-    def get_id(self) -> str:
-        return str(self.id)
+def _colmap_usuarios(conn):
+    cur = conn.cursor(dictionary=True)
+    cur.execute("SHOW COLUMNS FROM usuarios")
+    cols = {row["Field"] for row in cur.fetchall()}
+    cur.close()
+    return {
+        "id":   _pick(cols, ["id", "id_usuario", "usuario_id", "idUsuario", "user_id", "idUser"]),
+        "user": _pick(cols, ["username", "usuario", "user", "login", "mail", "email", "correo", "correo_electronico"]),
+        "pass": _pick(cols, ["password_hash", "password", "contrasena", "contrasenia", "clave", "pass", "pwd", "pswd"]),
+        "name": _pick(cols, ["nombre", "nombres", "name", "full_name"]),
+        "all":  cols,
+    }
 
-    @property
-    def is_authenticated(self) -> bool:
-        return True
+# ---------- Modelo de sesión ----------
+class User(UserMixin):
+    def __init__(self, id, username, nombre=None):
+        # ¡OJO! NO asignamos self.is_active (UserMixin ya lo provee)
+        self.id = str(id)          # Flask-Login espera string en get_id()
+        self.username = username
+        self.nombre = nombre
 
-    @property
-    def is_active(self) -> bool:
-        return True
+    @classmethod
+    def from_row(cls, row: dict):
+        # row debe venir aliaseado como id, username, nombre
+        return cls(row["id"], row.get("username"), row.get("nombre"))
 
-    @property
-    def is_anonymous(self) -> bool:
-        return False
+# ---------- Consultas usadas por LoginManager ----------
+def get_user_public_by_id(user_id):
+    """
+    Devuelve el usuario con alias estándar (id, username, nombre)
+    sin importar cómo se llamen realmente las columnas.
+    """
+    conn = get_connection()
+    try:
+        m = _colmap_usuarios(conn)
+        if not m["id"] or not m["user"]:
+            return None
+        cur = conn.cursor(dictionary=True)
+        sql = f"""
+            SELECT
+                {m['id']}   AS id,
+                {m['user']} AS username,
+                {m['name']} AS nombre
+            FROM usuarios
+            WHERE {m['id']}=%s
+            LIMIT 1
+        """
+        cur.execute(sql, (user_id,))
+        row = cur.fetchone()
+        cur.close()
+        return row
+    finally:
+        conn.close()
+
+def get_user_public_by_username(username):
+    """
+    Útil si en algún lugar necesitas buscar por username/correo.
+    También devuelve alias: id, username, nombre.
+    """
+    conn = get_connection()
+    try:
+        m = _colmap_usuarios(conn)
+        if not m["id"] or not m["user"]:
+            return None
+        cur = conn.cursor(dictionary=True)
+        sql = f"""
+            SELECT
+                {m['id']}   AS id,
+                {m['user']} AS username,
+                {m['name']} AS nombre
+            FROM usuarios
+            WHERE {m['user']}=%s
+            LIMIT 1
+        """
+        cur.execute(sql, (username,))
+        row = cur.fetchone()
+        cur.close()
+        return row
+    finally:
+        conn.close()

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ 'Editar' if producto else 'Crear' }} producto</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+<header class="navbar">
+  <div class="row container" style="gap:24px">
+    <div class="brand">Mi App Flask</div>
+    <a class="btn-link" href="{{ url_for('listar_productos') }}">Productos</a>
+    <a class="btn-link" href="{{ url_for('listar_categorias') }}">Categorías</a>
+    <div class="nav-spacer"></div>
+    <a class="btn" href="{{ url_for('auth.logout') }}">Salir</a>
+  </div>
+</header>
+
+<div class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="flashes">
+        {% for c,m in messages %}
+          <li class="flash {{ c }}">{{ m }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <section class="auth-wrap">
+    <div class="auth-card">
+      <h1>{{ 'Editar' if producto else 'Crear' }} producto</h1>
+      <form method="post">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input name="nombre" type="text" value="{{ producto.nombre if producto else '' }}" required>
+        </div>
+        <div class="form-group">
+          <label>Precio</label>
+          <input name="precio" type="number" step="0.01" value="{{ producto.precio if producto and producto.precio is not none else '' }}">
+        </div>
+        <div class="form-group">
+          <label>Stock</label>
+          <input name="stock" type="number" step="1" value="{{ producto.stock  if producto and producto.stock  is not none else '' }}">
+        </div>
+
+        {% if cat_fk %}
+        <div class="form-group">
+          <label>Categoría</label>
+          <select name="categoria_id">
+            <option value="">(Sin categoría)</option>
+            {% for c in categorias %}
+              <option value="{{ c.id }}" {{ 'selected' if producto and producto.categoria_id==c.id else '' }}>
+                {{ c.nombre }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+
+        <div class="actions">
+          <button type="submit">{{ 'Guardar' if producto else 'Crear' }}</button>
+          <a class="link" href="{{ u

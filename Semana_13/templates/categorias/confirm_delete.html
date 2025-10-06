@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Eliminar categoría</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+<header class="navbar">
+  <div class="row container" style="gap:24px">
+    <div class="brand">Mi App Flask</div>
+    <a class="btn-link" href="{{ url_for('listar_categorias') }}">Categorías</a>
+    <div class="nav-spacer"></div>
+    <a class="btn" href="{{ url_for('auth.logout') }}">Salir</a>
+  </div>
+</header>
+
+<div class="container">
+  <section class="auth-wrap">
+    <div class="auth-card">
+      <h1>Eliminar categoría</h1>
+      <p>¿Seguro que deseas eliminar <strong>{{ categoria.nombre }}</strong>?</p>
+      <form method="post">
+        <div class="actions">
+          <button class="btn btn-danger" type="submit">Sí, eliminar</button>
+          <a class="link" href="{{ url_for('listar_categorias') }}">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
+</body>
+</html>

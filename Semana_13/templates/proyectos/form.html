@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ 'Editar' if proyecto else 'Crear' }} proyecto</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+<header class="navbar">
+  <div class="row container" style="gap:24px">
+    <div class="brand">Mi App Flask</div>
+    <a class="btn-link" href="{{ url_for('listar_proyectos') }}">Proyectos</a>
+    <a class="btn-link" href="{{ url_for('listar_tareas') }}">Tareas</a>
+    <div class="nav-spacer"></div>
+    <a class="btn" href="{{ url_for('auth.logout') }}">Salir</a>
+  </div>
+</header>
+
+<div class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="flashes">
+        {% for c,m in messages %}
+          <li class="flash {{ c }}">{{ m }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <section class="auth-wrap">
+    <div class="auth-card">
+      <h1>{{ 'Editar' if proyecto else 'Crear' }} proyecto</h1>
+      <form method="post">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input name="nombre" type="text" value="{{ proyecto.nombre if proyecto else '' }}" required>
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea name="descripcion" rows="4">{{ proyecto.descripcion if proyecto else '' }}</textarea>
+        </div>
+        <div class="actions">
+          <button type="submit">{{ 'Guardar' if proyecto else 'Crear' }}</button>
+          <a class="link" href="{{ url_for('listar_proyectos') }}">Volver</a>
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
+</body>
+</html>

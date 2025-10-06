@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Categorías</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+<header class="navbar">
+  <div class="row container" style="gap:24px">
+    <div class="brand">Mi App Flask</div>
+    <a class="btn-link" href="{{ url_for('home') }}">Inicio</a>
+    <a class="btn-link" href="{{ url_for('listar_productos') }}">Productos</a>
+    <a class="btn-link" href="{{ url_for('listar_categorias') }}">Categorías</a>
+    <div class="nav-spacer"></div>
+    <span>{{ current_user.username }}</span>
+    <a class="btn" href="{{ url_for('auth.logout') }}">Salir</a>
+  </div>
+</header>
+
+<div class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="flashes">
+        {% for c,m in messages %}
+          <li class="flash {{ c }}">{{ m }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <div class="actions" style="margin: 18px 0">
+    <a class="btn" href="{{ url_for('crear_categoria') }}">Nueva categoría</a>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th><th>Nombre</th><th>Descripción</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for c in categorias %}
+      <tr>
+        <td>{{ c.id }}</td>
+        <td>{{ c.nombre }}</td>
+        <td>{{ c.descripcion or '' }}</td>
+        <td style="text-align:right">
+          <a class="btn" href="{{ url_for('editar_categoria', cat_id=c.id) }}">Editar</a>
+          <a class="btn btn-danger" href="{{ url_for('eliminar_categoria', cat_id=c.id) }}">Eliminar</a>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="4" style="text-align:center">Sin categorías</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+</body>
+</html>
